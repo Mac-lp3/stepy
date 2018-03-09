@@ -2,8 +2,17 @@ import json
 from functions.validate import validate_event
 
 def validate(event, context):
+    print("heres an event", event)
+    print("heres the context", context.__dict__)
     response = validate_event(event, context)
     return response
+
+def process(event, context):
+    print("heres an event", event)
+    print("heres the context", context.__dict__)
+    return {
+        "body": "been processed ty"
+    }
 
 def hello(event, context):
     body = {

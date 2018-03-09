@@ -59,6 +59,8 @@ functions:
     handler: handler.hello
   validate:
     handler: handler.validate
+  process:
+    handler: handler.process
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
