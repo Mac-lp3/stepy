@@ -19,10 +19,20 @@ service: stepy
 
 plugins:
   - serverless-step-functions
+  - serverless-pseudo-parameters
+  - serverless-offline-python
 
 provider:
   name: aws
   runtime: python3.6
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "ec2:*"
+        - "s3:*"
+        - "lambda:*"
+      Resource:
+        - "*"
 
 # you can overwrite defaults here
 #  stage: dev
@@ -58,12 +68,30 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
   validate:
     handler: handler.validate
   process:
     handler: handler.process
+
+stepFunctions:
+  stateMachines:
+    hellostepfunc1:
+      events:
+        - http:
+            path: runStep1
+            method: get
+      definition:
+        Comment: "Simple step function"
+        StartAt: Validate
+        States:
+          Validate:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-validate"
+            next: Process
+          Process:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-process"
+            end: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -97,40 +125,6 @@ functions:
 #    Define function environment variables here
 #    environment:
 #      variable2: value2
-
-resources:
-  Resources:
-    LambdaExecutionRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service: lambda.amazonaws.com
-              Action: "sts:AssumeRole"
-    StatesExecutionRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                Service:
-                  - states.us-east-1.amazonaws.com
-              Action: "sts:AssumeRole"
-        Path: "/"
-        Policies:
-          - PolicyName: StatesExecutionPolicy
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - "lambda:InvokeFunction"
-                  Resource: "*"
 
 # you can add CloudFormation resource templates here
 #resources:
