@@ -87,11 +87,11 @@ stepFunctions:
           Validate:
             Type: Task
             Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-validate"
-            next: Process
+            Next: Process
           Process:
             Type: Task
             Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-process"
-            end: true
+            End: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
